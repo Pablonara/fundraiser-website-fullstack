@@ -1,6 +1,5 @@
 #map {
     height: 100%;
-    width: 100%;
 }
 
 html,
@@ -8,21 +7,4 @@ body {
     height: 100%;
     margin: 0;
     padding: 0;
-}
-
-.column1 {
-    float: left;
-    width: 30%;
-}
-
-/* .column2 {
-    float: left;
-    width: 70%;
-} */
-
-/* Clear floats after the columns */
-.row:after {
-    content: "";
-    display: table;
-    clear: both;
 }
