@@ -1,4 +1,20 @@
-let markers = []; 
+let markers = [];
+
+function showMarkerInfo(marker) {
+  const lat = marker.getPosition().lat();
+  const lng = marker.getPosition().lng();
+  const uuid = marker.id;
+  const infoWindowContent = `
+    <div>
+      <b>Latitude:</b> ${lat.toFixed(4)}<br>
+      <b>Longitude:</b> ${lng.toFixed(4)}<br>
+      <b>UUID:</b> ${uuid}
+      </div>
+  `;
+  infoWindow.setContent(infoWindowContent);
+  infoWindow.open(map, marker);
+}
+
 
 async function initMap() {
   const { Map } = await google.maps.importLibrary("maps");
@@ -12,22 +28,50 @@ async function initMap() {
     position: myLatlng,
   });
 
-  function addMarker(lat, lng) {
+  function showMarkerInfo(marker) {
+    const lat = marker.getPosition().lat();
+    const lng = marker.getPosition().lng();
+    const uuid = marker.id;
+    const infoWindowContent = `
+      <div>
+        <b>Latitude:</b> ${lat.toFixed(4)}<br>
+        <b>Longitude:</b> ${lng.toFixed(4)}<br>
+        <b>UUID:</b> ${uuid}
+        </div>
+    `;
+    infoWindow.setContent(infoWindowContent);
+    infoWindow.open(map, marker);
+  }
+
+  function addMarker(lat, lng, uuid) {
     const marker = new google.maps.Marker({
       position: { lat, lng },
       map: map,
+      id: uuid,
     });
-    markers.push(marker); 
+    markers.push(marker);
   }
 
-  fetch('/getMarkers') 
+  fetch('/getMarkers')
     .then(response => response.json())
     .then(data => {
-      data.forEach(point => addMarker(point.lat, point.lng));
+      data.forEach(point => addMarker(point.lat, point.lng, point.uuid));
     })
     .catch(error => console.error('Error fetching points:', error));
 
+
+  markers.forEach(marker => {
+    marker.addListener('click', function () {
+      showMarkerInfo(marker);
+    });
+  });
+
+
   infoWindow.open(map);
+
+
+
+
   map.addListener("click", (mapsMouseEvent) => {
     infoWindow.close();
     infoWindow = new google.maps.InfoWindow({
@@ -43,6 +87,8 @@ async function initMap() {
     document.getElementById('lng').value = coords.lng;
   });
 }
+
+
 
 initMap();
 
