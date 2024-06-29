@@ -1,20 +1,5 @@
 let markers = [];
-
-function showMarkerInfo(marker) {
-  const lat = marker.getPosition().lat();
-  const lng = marker.getPosition().lng();
-  const uuid = marker.id;
-  const infoWindowContent = `
-    <div>
-      <b>Latitude:</b> ${lat.toFixed(4)}<br>
-      <b>Longitude:</b> ${lng.toFixed(4)}<br>
-      <b>UUID:</b> ${uuid}
-      </div>
-  `;
-  infoWindow.setContent(infoWindowContent);
-  infoWindow.open(map, marker);
-}
-
+let infoWindow;
 
 async function initMap() {
   const { Map } = await google.maps.importLibrary("maps");
@@ -23,24 +8,39 @@ async function initMap() {
     zoom: 4,
     center: myLatlng,
   });
-  let infoWindow = new google.maps.InfoWindow({
+
+  infoWindow = new google.maps.InfoWindow({
     content: "Click the map to get latitude and longitude",
     position: myLatlng,
   });
 
-  function showMarkerInfo(marker) {
+  function showMarkerInfo(marker, markerId) {
+    console.log(marker);
     const lat = marker.getPosition().lat();
     const lng = marker.getPosition().lng();
-    const uuid = marker.id;
+    const uuid = markerId;
+    
     const infoWindowContent = `
       <div>
         <b>Latitude:</b> ${lat.toFixed(4)}<br>
         <b>Longitude:</b> ${lng.toFixed(4)}<br>
         <b>UUID:</b> ${uuid}
-        </div>
+      </div>
     `;
     infoWindow.setContent(infoWindowContent);
     infoWindow.open(map, marker);
+
+    // Update the markerInfo div
+    const markerInfoDiv = document.getElementById('markerInfo');
+    const markerInfoContent = `
+      <div>
+        <h2>Marker Information</h2>
+        <p><b>Latitude:</b> ${lat.toFixed(4)}</p>
+        <p><b>Longitude:</b> ${lng.toFixed(4)}</p>
+        <p><b>UUID:</b> ${uuid}</p>
+      </div>
+    `;
+    markerInfoDiv.innerHTML = markerInfoContent;
   }
 
   function addMarker(lat, lng, uuid) {
@@ -49,28 +49,20 @@ async function initMap() {
       map: map,
       id: uuid,
     });
+    marker.addListener('click', function () {
+      showMarkerInfo(marker, marker.id);
+    });
     markers.push(marker);
   }
 
   fetch('/getMarkers')
     .then(response => response.json())
     .then(data => {
-      data.forEach(point => addMarker(point.lat, point.lng, point.uuid));
+      data.forEach(point => addMarker(point.lat, point.lng, point.id));
     })
     .catch(error => console.error('Error fetching points:', error));
 
-
-  markers.forEach(marker => {
-    marker.addListener('click', function () {
-      showMarkerInfo(marker);
-    });
-  });
-
-
   infoWindow.open(map);
-
-
-
 
   map.addListener("click", (mapsMouseEvent) => {
     infoWindow.close();
@@ -88,9 +80,9 @@ async function initMap() {
   });
 }
 
-
-
 initMap();
+
+
 
 // document.addEventListener('DOMContentLoaded', function() {
 //   var submitButton = document.getElementById('submitButton');

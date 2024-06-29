@@ -54,6 +54,11 @@ def getPoints():
     # Replace with your logic to fetch points from database or other source
     return jsonify(points)  # Return points data as JSON
 
+@app.route('/getContent', methods=['GET'])
+def get_content():
+    uuid = request.args.get('uuid')
+    return f'Hello world! Requested uuid is: {uuid}' 
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=2233)
