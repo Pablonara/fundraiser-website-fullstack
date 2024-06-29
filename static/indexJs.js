@@ -1,3 +1,5 @@
+let markers = []; 
+
 async function initMap() {
   const { Map } = await google.maps.importLibrary("maps");
   const myLatlng = { lat: 49.2497, lng: -123.1193 };
@@ -9,6 +11,21 @@ async function initMap() {
     content: "Click the map to get latitude and longitude",
     position: myLatlng,
   });
+
+  function addMarker(lat, lng) {
+    const marker = new google.maps.Marker({
+      position: { lat, lng },
+      map: map,
+    });
+    markers.push(marker); 
+  }
+
+  fetch('/getMarkers') 
+    .then(response => response.json())
+    .then(data => {
+      data.forEach(point => addMarker(point.lat, point.lng));
+    })
+    .catch(error => console.error('Error fetching points:', error));
 
   infoWindow.open(map);
   map.addListener("click", (mapsMouseEvent) => {
