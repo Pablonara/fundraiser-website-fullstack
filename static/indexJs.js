@@ -19,7 +19,7 @@ async function initMap() {
     const lat = marker.getPosition().lat();
     const lng = marker.getPosition().lng();
     const uuid = markerId;
-    
+
     const infoWindowContent = `
       <div>
         <b>Latitude:</b> ${lat.toFixed(4)}<br>
