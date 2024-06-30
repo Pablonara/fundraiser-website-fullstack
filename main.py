@@ -38,20 +38,19 @@ def loadDataByKeys(keys):
           return [{key: item[key] for key in keys} for item in data]
   except:
     return []
-  
-def appendData(data):
+
+def loadData():
   try:
-    data = []
     with open('data.json', 'r') as file:
         data = json.load(file)
-        data.append(data)
-    with open('data.json', 'w') as file:
-        json.dump(data, file)
+        return data
   except:
-    data = []
-    data.append(data)
-    with open('data.json', 'w') as file:
-      json.dump(data, file)
+    return []
+  
+def appendData(data):
+  data = loadData() + [data]
+  with open('data.json', 'w') as file:
+    json.dump(data, file)
 
 def loadpoints():
   try:
@@ -60,6 +59,16 @@ def loadpoints():
         return points
   except:
     return []
+
+def appendDataUnderKey(data, key, newEntry):
+    if key in data:
+        data[key].append(newEntry)
+    else:
+        # tempdata = {key, {newEntry}}
+        # data.append(tempdata)
+        print(f"Creating new key {key} with value [{newEntry}]")
+        data.append({key: [newEntry]})
+    return data
 
 print(points)
 
@@ -77,14 +86,11 @@ def mainApp():
         id = random.randint(0, 1000000)
         addToDb = {"lat": lat, "lng": lng, "id": id}
         
-        data = str(request.form.get('data'))
-        print(data)
-        addToData = {id: data}
-        print(addToData)
-        appendData(addToData)  
-        print(addToDb)
+        formData = str(request.form.get('data'))
+        print(formData)
+        addToData = {"text": formData,}
         points.append(addToDb)
-        print(points)
+        data = appendDataUnderKey(loadData(), id, addToData)
         savepoints()
         return render_template('index.html')
 
