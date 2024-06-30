@@ -14,17 +14,39 @@ async function initMap() {
     position: myLatlng,
   });
 
-  function showMarkerInfo(marker, markerId) {
+  async function showMarkerInfo(marker, markerId) {
     console.log(marker);
     const lat = marker.getPosition().lat();
     const lng = marker.getPosition().lng();
     const uuid = markerId;
+
+    // Get the data from /getContent endpoint
+    console.log(`/getContent?uuid=${uuid}`);
+
+    const response = await fetch(`/getContent?uuid=${uuid}`);
+
+    console.log(response);
+
+    const data = await response.json();
+
+    console.log(data);
+
+    let text = '';
+
+    data.forEach(item => {
+      if (item.hasOwnProperty('text')) {
+        text = item.text;
+        return;  // Exit loop after finding the text
+      }
+    });
 
     const infoWindowContent = `
       <div>
         <b>Latitude:</b> ${lat.toFixed(4)}<br>
         <b>Longitude:</b> ${lng.toFixed(4)}<br>
         <b>UUID:</b> ${uuid}
+        <h3>Marker Data</h3>
+        <b>Text:</b> ${text}<br>
       </div>
     `;
     infoWindow.setContent(infoWindowContent);
@@ -38,6 +60,8 @@ async function initMap() {
         <p><b>Latitude:</b> ${lat.toFixed(4)}</p>
         <p><b>Longitude:</b> ${lng.toFixed(4)}</p>
         <p><b>UUID:</b> ${uuid}</p>
+        <h3>Marker Data</h3>
+        <b>Text:</b> ${text}<br>
       </div>
     `;
     markerInfoDiv.innerHTML = markerInfoContent;

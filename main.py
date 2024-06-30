@@ -13,30 +13,32 @@ app = Flask(__name__)
 
 points = []
 
-data = [
-    {
-        "123456": {
-            "text": "helloworld"
-        }
-    }
-]
+# data = [
+#     {
+#         "123456": {
+#             "text": "helloworld"
+#         }
+#     }
+# ]
 
 def savepoints():
     with open('points.json', 'w') as file:
         json.dump(points, file)
 
-def savedata():
+def savedata(): # deprecated
+    with open('data.json', 'w') as file:
+        json.dump(data, file)
+        
+def saveDataWithArgs(data):
     with open('data.json', 'w') as file:
         json.dump(data, file)
         
 
-def loadDataByKeys(keys):
-  try:
-    with open('data.json', 'r') as file:
-        data = json.load(file)
-        if data:
-          return [{key: item[key] for key in keys} for item in data]
-  except:
+def loadDataByKey(key):
+    data = loadData()
+    for entry in data:
+        if key in entry:
+            return entry[key]
     return []
 
 def loadData():
@@ -88,10 +90,11 @@ def mainApp():
         
         formData = str(request.form.get('data'))
         print(formData)
+        savepoints()
         addToData = {"text": formData,}
         points.append(addToDb)
         data = appendDataUnderKey(loadData(), id, addToData)
-        savepoints()
+        saveDataWithArgs(data) # fix incorrect data save
         return render_template('index.html')
 
 
@@ -104,7 +107,8 @@ def getPoints():
 def getContent():
     uuid = request.args.get('uuid')
     try:
-      data = loadDataByKeys([uuid])
+      data = loadDataByKey(uuid)
+      print(data)
       return jsonify(data)
     except:
       return jsonify([])
