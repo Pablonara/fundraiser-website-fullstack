@@ -24,10 +24,6 @@ points = []
 def savepoints():
     with open('points.json', 'w') as file:
         json.dump(points, file)
-
-def savedata(): # deprecated
-    with open('data.json', 'w') as file:
-        json.dump(data, file)
         
 def saveDataWithArgs(data):
     with open('data.json', 'w') as file:
@@ -87,11 +83,14 @@ def mainApp():
         lng = float(request.form.get('lng'))
         id = random.randint(0, 1000000)
         addToDb = {"lat": lat, "lng": lng, "id": id}
-        
         formData = str(request.form.get('data'))
         print(formData)
         savepoints()
-        addToData = {"text": formData,}
+        formComments = str(request.form.get('comments'))
+        print(formComments)
+        formDate = str(request.form.get('date'))
+        print(formDate)
+        addToData = {"text": formData,}, {"comments": formComments,}, {"date": formDate,},
         points.append(addToDb)
         data = appendDataUnderKey(loadData(), id, addToData)
         saveDataWithArgs(data) # fix incorrect data save

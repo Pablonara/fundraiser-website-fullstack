@@ -1,6 +1,53 @@
 let markers = [];
 let infoWindow;
 
+const apiKey = '123'; 
+
+function reverseGeocode(lat, lng) {
+  return new Promise((resolve, reject) => {
+    const geocoder = new google.maps.Geocoder();
+    const latlng = new google.maps.LatLng(lat, lng);
+    const request = {
+      latLng: latlng
+    };
+
+    geocoder.geocode(request, (results, status) => {
+      if (status === google.maps.GeocoderStatus.OK) {
+        if (results[0]) {
+          resolve(results[0].formatted_address); //grab most likely address
+        } else {
+          reject(new Error('No results found'));
+        }
+      } else {
+        reject(new Error(`Geocoder failed due to: ${status}`));
+      }
+    });
+  });
+}
+
+function geocodeAddress(address) {
+  return new Promise((resolve, reject) => {
+    const geocoder = new google.maps.Geocoder();
+    const request = {
+      address: address
+    };
+
+    geocoder.geocode(request, (results, status) => {
+      if (status === google.maps.GeocoderStatus.OK) {
+        // If there are results, return the location object of the most likely one
+        if (results[0]) {
+          const location = results[0].geometry.location;
+          resolve({ lat: location.lat(), lng: location.lng() });
+        } else {
+          reject(new Error('No results found'));
+        }
+      } else {
+        reject(new Error(`Geocoder failed due to: ${status}`));
+      }
+    });
+  });
+}
+
 async function initMap() {
   const { Map } = await google.maps.importLibrary("maps");
   const myLatlng = { lat: 49.2497, lng: -123.1193 };
@@ -31,14 +78,33 @@ async function initMap() {
 
     console.log(data);
 
-    let text = '';
+    let text, comments, date;
 
-    data.forEach(item => {
-      if (item.hasOwnProperty('text')) {
-        text = item.text;
-        return;  // Exit loop after finding the text
-      }
+    data.forEach(items => {
+      items.forEach(item => {
+        if (item.hasOwnProperty('text')) {
+          text = item['text'];
+        }
+        if (item.hasOwnProperty('comments')) {
+          comments = item['comments'];
+        }
+        if (item.hasOwnProperty('date')) {
+          date = item['date'];
+        }
+      });
     });
+
+    console.log(text);
+    console.log(comments);
+    console.log(date);
+
+    reverseGeocode(lat, lng)
+      .then(address => {
+        console.log('Formatted address:', address);
+      })
+      .catch(error => {
+        console.error('Error:', error.message);
+      });
 
     const infoWindowContent = `
       <div>
@@ -47,6 +113,8 @@ async function initMap() {
         <b>UUID:</b> ${uuid}
         <h3>Marker Data</h3>
         <b>Text:</b> ${text}<br>
+        <b>Comments:</b> ${comments}<br>
+        <b>Date:</b> ${date}<br>
       </div>
     `;
     infoWindow.setContent(infoWindowContent);
@@ -105,6 +173,18 @@ async function initMap() {
 }
 
 initMap();
+
+
+// const address = 'something something';
+
+// geocodeAddress(address)
+//   .then(location => {
+//     console.log('Latitude:', location.lat);
+//     console.log('Longitude:', location.lng);
+//   })
+//   .catch(error => {
+//     console.error('Error:', error.message);
+//   });
 
 
 
