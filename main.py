@@ -1,9 +1,10 @@
-from flask import Flask, request, jsonify, render_template, send_from_directory, redirect, url_for
+from flask import Flask, request, jsonify, render_template, send_from_directory, redirect, url_for, Blueprint
 import requests
 import json
 import random
+from . import db
 
-app = Flask(__name__)
+main = Blueprint('main', __name__)
 
 # Sample data
 # points = [
@@ -74,10 +75,18 @@ points = loadpoints()
 
 print(points)
 
-@app.route('/', methods=['GET', 'POST'])
+@main.route('/')
+def index():
+    return render_template('index.html')
+
+@main.route('/profile')
+def profile():
+    return render_template('profile.html')
+
+@main.route('/map', methods=['GET', 'POST'])
 def mainApp():
     if request.method == 'GET':
-        return render_template('index.html')
+        return render_template('map.html')
     if request.method == 'POST':
         lat = float(request.form.get('lat'))
         lng = float(request.form.get('lng'))
@@ -94,15 +103,15 @@ def mainApp():
         points.append(addToDb)
         data = appendDataUnderKey(loadData(), id, addToData)
         saveDataWithArgs(data) # fix incorrect data save
-        return render_template('index.html')
+        return render_template('map.html')
 
 
-@app.route('/getMarkers', methods=['GET'])
+@main.route('/getMarkers', methods=['GET'])
 def getPoints():
     # Replace with your logic to fetch points from database or other source
     return jsonify(points)  # Return points data as JSON
 
-@app.route('/getContent', methods=['GET'])
+@main.route('/getContent', methods=['GET'])
 def getContent():
     uuid = request.args.get('uuid')
     try:
@@ -113,7 +122,7 @@ def getContent():
       return jsonify([])
     return f'Hello world! Requested uuid is: {uuid}' 
 
-@app.route('/addContent', methods=['POST'])
+@main.route('/addContent', methods=['POST'])
 def addContent():
     try:
       data = request.json
@@ -122,5 +131,5 @@ def addContent():
     except:
       return jsonify({"status": "error"})
 
-if __name__ == '__main__':
-    app.run(debug=True, port=2233)
+# if __name__ == '__main__':
+#     app.run(debug=True, port=2233)
