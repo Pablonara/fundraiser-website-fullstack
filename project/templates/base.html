@@ -21,8 +21,8 @@
                                 Home
                             </a>
                             {% if current_user.is_authenticated %}
-                            <a href="{{ url_for('main.profile') }}" class="navbar-item">
-                                Profile
+                            <a href="{{ url_for('main.dashboard') }}" class="navbar-item">
+                                Dashboard
                             </a>
                             {% endif %}
                             {% if not current_user.is_authenticated %}
@@ -46,8 +46,8 @@
 
         <div class="hero-body">
             <div class="container has-text-centered">
-               {% block content %}
-               {% endblock %}
+                {% block content %}
+                {% endblock %}
             </div>
         </div>
     </section>

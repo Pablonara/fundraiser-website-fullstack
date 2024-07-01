@@ -4,6 +4,7 @@ import requests
 import json
 import random
 from . import db
+from flask_login import login_required, current_user
 
 main = Blueprint('main', __name__)
 

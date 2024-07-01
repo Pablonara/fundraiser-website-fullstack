@@ -1,6 +1,8 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from flask_login import login_required, current_user    
+
 
 db = SQLAlchemy()
 
@@ -17,12 +19,15 @@ def create_app():
         db.create_all()
 
     login_manager = LoginManager()
-    login_manager.login_view = 'auth.login'  # Set the route for login
     login_manager.init_app(app)
+
+
 
     @login_manager.user_loader
     def load_user(user_id):
-        return models.User.query.get(int(user_id))
+        return User.get(user_id)
+
+
 
     # blueprint for auth routes in our app
     from .auth import auth as auth_blueprint
