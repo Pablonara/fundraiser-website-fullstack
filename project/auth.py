@@ -22,8 +22,11 @@ def login_post():
     # take the user-supplied password, hash it, and compare it to the hashed password in the database
     if not user or not check_password_hash(user.password, password):
         flash('Please check your login details and try again.')
-        return redirect(url_for('auth.login')) 
-    return redirect(url_for('main.dashboard'))
+        return redirect(url_for('auth.login'))
+    elif user and check_password_hash(user.password, password): 
+        # user.is_authenticated = True
+        login_user(user, remember=remember)
+        return redirect(url_for('main.dashboard'))
 
 @auth.route('/signup')
 def signup():

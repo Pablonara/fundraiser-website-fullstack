@@ -87,6 +87,7 @@ def dashboard():
     return render_template('dashboard.html', name=current_user.name)
 
 @main.route('/map', methods=['GET', 'POST'])
+@login_required
 def mainApp():
     if request.method == 'GET':
         return render_template('map.html')
@@ -110,11 +111,13 @@ def mainApp():
 
 
 @main.route('/getMarkers', methods=['GET'])
+@login_required
 def getPoints():
     # Replace with your logic to fetch points from database or other source
     return jsonify(points)  # Return points data as JSON
 
 @main.route('/getContent', methods=['GET'])
+@login_required
 def getContent():
     uuid = request.args.get('uuid')
     try:
@@ -126,6 +129,7 @@ def getContent():
     return f'Hello world! Requested uuid is: {uuid}' 
 
 @main.route('/addContent', methods=['POST'])
+@login_required
 def addContent():
     try:
       data = request.json
