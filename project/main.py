@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify, render_template, send_from_directory, redirect, url_for, Blueprint
+from flask_login import login_required, current_user, LoginManager
 import requests
 import json
 import random
@@ -79,9 +80,10 @@ print(points)
 def index():
     return render_template('index.html')
 
-@main.route('/profile')
-def profile():
-    return render_template('profile.html')
+@main.route('/dashboard')
+@login_required
+def dashboard():
+    return render_template('dashboard.html', name=current_user.name)
 
 @main.route('/map', methods=['GET', 'POST'])
 def mainApp():
